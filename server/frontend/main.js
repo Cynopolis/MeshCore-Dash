@@ -1,9 +1,12 @@
-// Populate the serial devices dropdown
+// main.js
+
+// --- Serial Device Dropdown ---
 async function refreshDevices() {
     const res = await fetch("/devices");
     const data = await res.json();
     const select = document.getElementById("serialDevice");
-    select.innerHTML = ""; // clear existing options
+    if (!select) return;
+    select.innerHTML = "";
 
     if (data.devices && data.devices.length > 0) {
         data.devices.forEach(dev => {
@@ -20,11 +23,9 @@ async function refreshDevices() {
     }
 }
 
-// Connect to selected device
 async function connectDevice() {
     const select = document.getElementById("serialDevice");
-    const port = select.value;
-
+    const port = select?.value;
     const responseDiv = document.getElementById("connectResponse");
     if (!port) {
         responseDiv.textContent = "No device selected";
@@ -36,11 +37,11 @@ async function connectDevice() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ port })
     });
-
     const data = await res.json();
     responseDiv.textContent = data.status || data.error;
 }
 
+// --- Advert / Flood ---
 async function sendAdvert() {
     const res = await fetch("/advert", { method: "POST" });
     const data = await res.json();
@@ -53,47 +54,40 @@ async function sendFloodAdv() {
     document.getElementById("advertResponse").textContent = data.output || data.error;
 }
 
+// --- Nodes ---
 async function listNodes() {
     const res = await fetch("/nodes");
     const data = await res.json();
     const nodeList = document.getElementById("nodeList");
     nodeList.innerHTML = "";
-    if (data.output) {
-        const nodes = data.output.split("\n");
-        nodes.forEach(node => {
+
+    if (data.contacts) {
+        data.contacts.forEach(node => {
             const li = document.createElement("li");
             li.textContent = node;
             nodeList.appendChild(li);
         });
-    } else if (data.error) {
-        const li = document.createElement("li");
-        li.textContent = data.error;
-        li.className = "error";
-        nodeList.appendChild(li);
     }
 }
 
+// --- Recipient ---
 async function setRecipient() {
-    const name = document.getElementById("recipient").value;
+    const input = document.getElementById("recipient");
+    const name = input.value.trim();
+    const responseDiv = document.getElementById("recipientResponse");
+    if (!name) {
+        responseDiv.textContent = "Recipient name is empty";
+        return;
+    }
+
     const res = await fetch("/recipient", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name })
     });
     const data = await res.json();
-    document.getElementById("recipientResponse").textContent = data.status || data.error;
+    responseDiv.textContent = data.status || data.error;
 }
 
-async function sendMessage() {
-    const msg = document.getElementById("messageText").value;
-    const res = await fetch("/message", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ msg })
-    });
-    const data = await res.json();
-    document.getElementById("messageResponse").textContent = data.output || data.error;
-}
-
-// Populate dropdown immediately on page load
+// --- Initialize ---
 window.addEventListener("DOMContentLoaded", refreshDevices);

@@ -1,12 +1,19 @@
 from flask import Flask, request, jsonify, send_from_directory
 import serial.tools.list_ports
 from mesh_communicator import MeshCommunicator
+from mesh_database import MeshDatabase
+from mesh_message_handler import MeshMessageHandler
 import os
 
 app = Flask(__name__)
 
 # Single global communicator instance
 mesh = MeshCommunicator()
+
+# Database and message handler
+db = MeshDatabase()
+db.initializeDatabase()
+message_handler = MeshMessageHandler(mesh, db)
 
 # Path to the folder where index.html, main.js, and style.css are stored
 FRONTEND_DIR = os.path.join(os.path.dirname(
@@ -25,6 +32,12 @@ def main_js():
     return send_from_directory(FRONTEND_DIR, "main.js")
 
 
+@app.route("/chatbox.js")
+def chatbox_js():
+    """Serve JavaScript file"""
+    return send_from_directory(FRONTEND_DIR, "chatbox.js")
+
+
 @app.route("/style.css")
 def style_css():
     """Serve CSS file"""
@@ -38,8 +51,7 @@ def list_devices():
     devices = [{"device": p.device, "description": p.description}
                for p in ports]
     response = {"devices": devices}
-    response_code = 200
-    return jsonify(response), response_code
+    return jsonify(response), 200
 
 
 @app.route("/connect", methods=["POST"])
@@ -94,18 +106,37 @@ def set_recipient():
     return jsonify(response), response_code
 
 
-@app.route("/message", methods=["POST"])
-def send_message():
-    """Send a message to the target recipient"""
+@app.route("/send_message", methods=["POST"])
+def send_chat_message():
+    """
+    Send a message to the currently selected recipient via MeshMessageHandler.
+    """
     data = request.json
     response = {"error": "Missing 'msg'"}
-    response_code: int = 400
+    response_code = 400
+
     if data is not None:
         msg = data.get("msg")
         if msg:
-            response = mesh.send_message(msg)
+            response = message_handler.send_message(msg)
+
             response_code = 200
+            if "error" in response:
+                response_code = 400
+
     return jsonify(response), response_code
+
+
+@app.route("/messages", methods=["GET"])
+def get_messages():
+    """
+    Fetch the most recent messages from the database.
+    """
+    num_messages = request.args.get("num", default=50, type=int)
+    messages = message_handler.get_last_messages(num_messages)
+    # Convert MeshMessage objects to dicts for JSON serialization
+    messages_data = [msg.__dict__ for msg in messages]
+    return jsonify({"messages": messages_data}), 200
 
 
 if __name__ == "__main__":

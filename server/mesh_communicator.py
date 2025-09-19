@@ -75,3 +75,15 @@ class MeshCommunicator:
     def send_message(self, msg: str) -> Dict[str, Any]:
         assert self.target_recipient is not None
         return self._run_meshcli(["msg", self.target_recipient, msg])
+
+    @needsmeshdevice
+    def get_messages(self) -> Dict[str, Any]:
+        """
+        Fetch unread messages from the node.
+        Returns a list of messages as JSON.
+        """
+        result = self._run_meshcli(["sync_msgs"])
+        messages = []
+        if "output" in result and result["output"]:
+            messages = result["output"].splitlines()
+        return {"messages": messages}

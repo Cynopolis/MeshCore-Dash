@@ -19,7 +19,7 @@ h1 {
 /* Dashboard grid container */
 .dashboard {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 20px;
 }
 
@@ -132,4 +132,76 @@ button:active {
     button {
         width: 100%;
     }
+}
+
+/* Chat window */
+#chatWindow {
+    background-color: #1b1b1b;
+    border-radius: 12px;
+    height: 300px;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+/* Messages */
+.message {
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    word-wrap: break-word;
+}
+
+.message.sent {
+    background-color: #3f51b5;
+    color: white;
+    align-self: flex-end;
+    text-align: right;
+}
+
+.message.received {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    align-self: flex-start;
+    text-align: left;
+}
+
+/* Chat input */
+#chatInput {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: none;
+    resize: none;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* Auto-grow textarea */
+#chatInput:focus {
+    box-shadow: 0 0 0 2px #3f51b5;
+}
+
+/* Red bubble for failed messages */
+.message.failed {
+    background-color: #ff4d4d;
+    color: white;
+    align-self: flex-end;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 5px 0;
+    max-width: 70%;
+    word-wrap: break-word;
+    position: relative;
+}
+
+.failed-submessage {
+    font-size: 0.7em;
+    color: #ffcccc;
+    margin-top: 2px;
 }

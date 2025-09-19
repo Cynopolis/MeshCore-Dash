@@ -46,18 +46,18 @@
             <div id="recipientResponse" class="response"></div>
         </div>
 
-        <!-- Send Message -->
+        <!-- Live Chat -->
         <div class="card">
-            <h2>Send Message</h2>
-            <label for="messageText">Message:</label>
-            <input type="text" id="messageText" placeholder="Enter message">
-            <button onclick="sendMessage()">Send</button>
-            <div id="messageResponse" class="response"></div>
+            <h2>Live Chat</h2>
+            <div id="chatWindow"></div>
+            <textarea id="chatInput" placeholder="Type a message..." rows="1"></textarea>
+            <button onclick="sendChatMessage()">Send</button>
         </div>
 
     </div>
 
     <script src="main.js"></script>
+    <script src="chatbox.js"></script>
 </body>
 
 </html>
