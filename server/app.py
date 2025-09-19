@@ -102,5 +102,23 @@ def set_recipient():
     return jsonify(response), response_code
 
 
+@app.route("/send_message", methods=["POST"])
+def send_chat_message():
+    """
+    Send a message to the currently selected recipient via MeshCommunicator.
+    """
+    data = request.json
+    response = {"error": "Missing 'msg'"}
+    response_code = 400
+
+    if data is not None:
+        msg = data.get("msg")
+        if msg:
+            response = mesh.send_message(msg)
+            response_code = 200
+
+    return jsonify(response), response_code
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

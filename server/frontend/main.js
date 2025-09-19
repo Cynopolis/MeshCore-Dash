@@ -102,7 +102,7 @@ async function sendChatMessage() {
     const msg = input.value.trim();
     if (!msg) return;
 
-    const res = await fetch("/message", {
+    const res = await fetch("/send_message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ msg })
