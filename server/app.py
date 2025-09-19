@@ -1,11 +1,34 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import serial.tools.list_ports
 from mesh_communicator import MeshCommunicator
+import os
 
 app = Flask(__name__)
 
 # Single global communicator instance
 mesh = MeshCommunicator()
+
+# Path to the folder where index.html, main.js, and style.css are stored
+FRONTEND_DIR = os.path.join(os.path.dirname(
+    os.path.abspath(__file__)), "frontend")
+
+
+@app.route("/")
+def index():
+    """Serve the main frontend page"""
+    return send_from_directory(FRONTEND_DIR, "index.html")
+
+
+@app.route("/main.js")
+def main_js():
+    """Serve JavaScript file"""
+    return send_from_directory(FRONTEND_DIR, "main.js")
+
+
+@app.route("/style.css")
+def style_css():
+    """Serve CSS file"""
+    return send_from_directory(FRONTEND_DIR, "style.css")
 
 
 @app.route("/devices", methods=["GET"])
@@ -86,4 +109,4 @@ def send_message():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
