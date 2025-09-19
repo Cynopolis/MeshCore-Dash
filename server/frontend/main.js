@@ -1,12 +1,44 @@
+// Populate the serial devices dropdown
+async function refreshDevices() {
+    const res = await fetch("/devices");
+    const data = await res.json();
+    const select = document.getElementById("serialDevice");
+    select.innerHTML = ""; // clear existing options
+
+    if (data.devices && data.devices.length > 0) {
+        data.devices.forEach(dev => {
+            const option = document.createElement("option");
+            option.value = dev.device;
+            option.textContent = `${dev.device} (${dev.description})`;
+            select.appendChild(option);
+        });
+    } else {
+        const option = document.createElement("option");
+        option.textContent = "No devices found";
+        option.value = "";
+        select.appendChild(option);
+    }
+}
+
+// Connect to selected device
 async function connectDevice() {
-    const port = document.getElementById("serialDevice").value;
+    const select = document.getElementById("serialDevice");
+    const port = select.value;
+
+    const responseDiv = document.getElementById("connectResponse");
+    if (!port) {
+        responseDiv.textContent = "No device selected";
+        return;
+    }
+
     const res = await fetch("/connect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ port })
     });
+
     const data = await res.json();
-    document.getElementById("connectResponse").textContent = data.status || data.error;
+    responseDiv.textContent = data.status || data.error;
 }
 
 async function sendAdvert() {
@@ -62,3 +94,6 @@ async function sendMessage() {
     const data = await res.json();
     document.getElementById("messageResponse").textContent = data.output || data.error;
 }
+
+// Populate dropdown immediately on page load
+window.addEventListener("DOMContentLoaded", refreshDevices);

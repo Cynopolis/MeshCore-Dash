@@ -16,7 +16,8 @@
         <div class="card">
             <h2>Connect Serial Device</h2>
             <label for="serialDevice">Serial Port:</label>
-            <input type="text" id="serialDevice" placeholder="/dev/ttyUSB0">
+            <select id="serialDevice"></select>
+            <button onclick="refreshDevices()">Refresh Devices</button>
             <button onclick="connectDevice()">Connect</button>
             <div id="connectResponse" class="response"></div>
         </div>
