@@ -119,7 +119,10 @@ def send_chat_message():
         msg = data.get("msg")
         if msg:
             response = message_handler.send_message(msg)
+
             response_code = 200
+            if "error" in response:
+                response_code = 400
 
     return jsonify(response), response_code
 

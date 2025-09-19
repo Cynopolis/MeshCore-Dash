@@ -186,3 +186,22 @@ button:active {
 #chatInput:focus {
     box-shadow: 0 0 0 2px #3f51b5;
 }
+
+/* Red bubble for failed messages */
+.message.failed {
+    background-color: #ff4d4d;
+    color: white;
+    align-self: flex-end;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 5px 0;
+    max-width: 70%;
+    word-wrap: break-word;
+    position: relative;
+}
+
+.failed-submessage {
+    font-size: 0.7em;
+    color: #ffcccc;
+    margin-top: 2px;
+}

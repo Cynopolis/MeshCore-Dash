@@ -63,17 +63,21 @@ class MeshMessageHandler:
         """
         msg_obj = self._parse_raw_message(msg_content, sender="me")
 
-        # Store in database first
-        self.database.store_message(msg_obj)
+        result = None
 
         # Send via MeshCommunicator
         try:
             result = self.communicator.send_message(msg_content)
             if "error" in result:
                 print(f"Error sending message: {result['error']}")
-            return result
         except Exception as e:
-            return {"error": str(e)}
+            result = {"error": str(e)}
+
+        # Store in database if we succesfully sent the message
+        if "error" not in result:
+            self.database.store_message(msg_obj)
+
+        return result
 
     def get_last_messages(self, num_messages: int) -> List[MeshMessage]:
         """

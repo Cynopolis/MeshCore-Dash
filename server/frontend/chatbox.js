@@ -16,16 +16,26 @@ async function sendChatMessage() {
     });
 
     const data = await res.json();
-    if (!data.error) {
+
+    if (res.status === 200 && !data.error) {
         addMessageToWindow({
             sender: "me",
             content: msg
         });
-        input.value = "";
-        adjustTextareaHeight();
     } else {
-        console.error(data.error);
+        // Display failed message with error from server
+        const errorMsg = data.error || "Unknown error";
+        addMessageToWindow({
+            sender: "me",
+            content: msg,
+            failed: true,
+            error: errorMsg
+        });
+        console.error(errorMsg);
     }
+
+    input.value = "";
+    adjustTextareaHeight();
 }
 
 // Add message to chat window
@@ -34,9 +44,21 @@ function addMessageToWindow(msgObj) {
     const div = document.createElement("div");
 
     // Determine message type for styling
-    const type = msgObj.sender === "me" ? "sent" : "received";
+    let type = "received";
+    if (msgObj.sender === "me") type = "sent";
+    if (msgObj.failed) type = "failed";
+
     div.className = `message ${type}`;
     div.textContent = msgObj.content;
+
+    // Add a small submessage if failed
+    if (msgObj.failed && msgObj.error) {
+        const sub = document.createElement("div");
+        sub.className = "failed-submessage";
+        sub.textContent = `Failed to send: ${msgObj.error}`;
+        div.appendChild(document.createElement("br"));
+        div.appendChild(sub);
+    }
 
     chatWindow.appendChild(div);
     chatWindow.scrollTop = chatWindow.scrollHeight;
