@@ -4,41 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <title>MeshCore Controller</title>
-    <!-- Link external CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <h1>MeshCore Controller</h1>
 
-    <h2>Connect Serial Device</h2>
-    <label for="serialDevice">Serial Port:</label>
-    <input type="text" id="serialDevice" placeholder="/dev/ttyUSB0">
-    <button onclick="connectDevice()">Connect</button>
-    <div id="connectResponse" class="response"></div>
+    <div class="dashboard">
 
-    <h2>Discovery</h2>
-    <button onclick="sendAdvert()">Send Advert</button>
-    <button onclick="sendFloodAdv()">Send Flood Advert</button>
-    <div id="advertResponse" class="response"></div>
+        <!-- Connect Serial Device -->
+        <div class="card">
+            <h2>Connect Serial Device</h2>
+            <label for="serialDevice">Serial Port:</label>
+            <input type="text" id="serialDevice" placeholder="/dev/ttyUSB0">
+            <button onclick="connectDevice()">Connect</button>
+            <div id="connectResponse" class="response"></div>
+        </div>
 
-    <h2>Known Nodes</h2>
-    <button onclick="listNodes()">Refresh Node List</button>
-    <ul id="nodeList"></ul>
+        <!-- Discovery -->
+        <div class="card">
+            <h2>Discovery</h2>
+            <button onclick="sendAdvert()">Send Advert</button>
+            <button onclick="sendFloodAdv()">Send Flood Advert</button>
+            <div id="advertResponse" class="response"></div>
+        </div>
 
-    <h2>Set Recipient</h2>
-    <label for="recipient">Recipient Name:</label>
-    <input type="text" id="recipient" placeholder="Enter recipient node name">
-    <button onclick="setRecipient()">Set Recipient</button>
-    <div id="recipientResponse" class="response"></div>
+        <!-- Known Nodes -->
+        <div class="card">
+            <h2>Known Nodes</h2>
+            <button onclick="listNodes()">Refresh Node List</button>
+            <ul id="nodeList"></ul>
+        </div>
 
-    <h2>Send Message</h2>
-    <label for="messageText">Message:</label>
-    <input type="text" id="messageText" placeholder="Enter message">
-    <button onclick="sendMessage()">Send</button>
-    <div id="messageResponse" class="response"></div>
+        <!-- Set Recipient -->
+        <div class="card">
+            <h2>Set Recipient</h2>
+            <label for="recipient">Recipient Name:</label>
+            <input type="text" id="recipient" placeholder="Enter recipient node name">
+            <button onclick="setRecipient()">Set Recipient</button>
+            <div id="recipientResponse" class="response"></div>
+        </div>
 
-    <!-- Link to external JS file -->
+        <!-- Send Message -->
+        <div class="card">
+            <h2>Send Message</h2>
+            <label for="messageText">Message:</label>
+            <input type="text" id="messageText" placeholder="Enter message">
+            <button onclick="sendMessage()">Send</button>
+            <div id="messageResponse" class="response"></div>
+        </div>
+
+    </div>
+
     <script src="main.js"></script>
 </body>
 
