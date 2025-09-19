@@ -1,5 +1,8 @@
 // chatbox.js
 
+// Keep track of messages already displayed
+let displayedMessageIds = new Set();
+
 // Send chat message
 async function sendChatMessage() {
     const input = document.getElementById("chatInput");
@@ -14,7 +17,10 @@ async function sendChatMessage() {
 
     const data = await res.json();
     if (!data.error) {
-        addMessageToWindow(msg, "sent");
+        addMessageToWindow({
+            sender: "me",
+            content: msg
+        });
         input.value = "";
         adjustTextareaHeight();
     } else {
@@ -23,13 +29,22 @@ async function sendChatMessage() {
 }
 
 // Add message to chat window
-function addMessageToWindow(msg, type) {
+function addMessageToWindow(msgObj) {
     const chatWindow = document.getElementById("chatWindow");
     const div = document.createElement("div");
+
+    // Determine message type for styling
+    const type = msgObj.sender === "me" ? "sent" : "received";
     div.className = `message ${type}`;
-    div.textContent = msg;
+    div.textContent = msgObj.content;
+
     chatWindow.appendChild(div);
     chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    // Track that we've displayed this message
+    if (msgObj.timestamp) {
+        displayedMessageIds.add(msgObj.timestamp);
+    }
 }
 
 // Auto-grow textarea
@@ -46,17 +61,24 @@ function adjustTextareaHeight() {
 // Poll for new messages every 3 seconds
 async function pollMessages() {
     try {
-        const res = await fetch("/messages");
+        const res = await fetch("/messages?num=50");
         const data = await res.json();
+
         if (data.messages && data.messages.length > 0) {
-            data.messages.forEach(msg => addMessageToWindow(msg, "received"));
+            data.messages.forEach(msg => {
+                if (!displayedMessageIds.has(msg.timestamp)) {
+                    addMessageToWindow(msg);
+                }
+            });
         }
     } catch (e) {
         console.error("Error polling messages:", e);
     }
 }
 
-// Start polling if chat window exists
-if (document.getElementById("chatWindow")) {
+// Load initial messages on page load
+window.addEventListener("load", async () => {
+    await pollMessages();
+    // Start polling every 3 seconds
     setInterval(pollMessages, 3000);
-}
+});
