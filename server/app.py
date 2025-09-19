@@ -38,8 +38,16 @@ def list_devices():
     devices = [{"device": p.device, "description": p.description}
                for p in ports]
     response = {"devices": devices}
-    response_code = 200
-    return jsonify(response), response_code
+    return jsonify(response), 200
+
+
+@app.route("/messages", methods=["GET"])
+def get_messages():
+    """
+    Fetch unread messages from the MeshCore node.
+    """
+    response = mesh.get_messages()
+    return jsonify(response), 200
 
 
 @app.route("/connect", methods=["POST"])
@@ -90,20 +98,6 @@ def set_recipient():
         name = data.get("name")
         if name:
             response = mesh.set_recipient(name)
-            response_code = 200
-    return jsonify(response), response_code
-
-
-@app.route("/message", methods=["POST"])
-def send_message():
-    """Send a message to the target recipient"""
-    data = request.json
-    response = {"error": "Missing 'msg'"}
-    response_code: int = 400
-    if data is not None:
-        msg = data.get("msg")
-        if msg:
-            response = mesh.send_message(msg)
             response_code = 200
     return jsonify(response), response_code
 
