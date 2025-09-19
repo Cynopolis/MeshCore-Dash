@@ -1,20 +1,11 @@
 from flask import Flask, request, jsonify
-import subprocess
 import serial.tools.list_ports
+from mesh_communicator import MeshCommunicator
 
 app = Flask(__name__)
 
-current_device = None
-target_recipient = None
-
-
-def run_meshcli(args):
-    """Helper to run meshcli commands and capture output"""
-    cmd = ["meshcli"] + args
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        return {"error": result.stderr.strip()}
-    return {"output": result.stdout.strip()}
+# Single global communicator instance
+mesh = MeshCommunicator()
 
 
 @app.route("/devices", methods=["GET"])
@@ -23,61 +14,75 @@ def list_devices():
     ports = serial.tools.list_ports.comports()
     devices = [{"device": p.device, "description": p.description}
                for p in ports]
-    return jsonify(devices)
+    response = {"devices": devices}
+    response_code = 200
+    return jsonify(response), response_code
 
 
 @app.route("/connect", methods=["POST"])
 def connect_device():
     """Connect to a serial device"""
-    global current_device
     data = request.json
-    port = data.get("port")
-    if not port:
-        return jsonify({"error": "Missing 'port'"}), 400
-    current_device = port
-    return jsonify({"status": f"Connected to {port}"})
+    response = {"error": "Missing 'port'"}
+    response_code: int = 400
+    if data is not None:
+        port = data.get("port")
+        if port:
+            response = mesh.set_serial_device(port)
+            response_code = 200
+    return jsonify(response), response_code
 
 
 @app.route("/advert", methods=["POST"])
 def send_advert():
     """Send advert packet"""
-    return jsonify(run_meshcli(["advert"]))
+    response = mesh.send_advert()
+    response_code = 200
+    return jsonify(response), response_code
 
 
 @app.route("/floodadv", methods=["POST"])
 def send_floodadv():
     """Send flood advert packet"""
-    return jsonify(run_meshcli(["floodadv"]))
+    response = mesh.send_floodadv()
+    response_code = 200
+    return jsonify(response), response_code
 
 
 @app.route("/nodes", methods=["GET"])
 def list_nodes():
     """Get known nodes (contact list)"""
-    return jsonify(run_meshcli(["contacts"]))
+    response = mesh.list_nodes()
+    response_code = 200
+    return jsonify(response), response_code
 
 
 @app.route("/recipient", methods=["POST"])
 def set_recipient():
     """Set the target recipient"""
-    global target_recipient
     data = request.json
-    name = data.get("name")
-    if not name:
-        return jsonify({"error": "Missing 'name'"}), 400
-    target_recipient = name
-    return jsonify({"status": f"Recipient set to {name}"})
+    response = {"error": "Missing 'name'"}
+    response_code: int = 400
+    if data is not None:
+        name = data.get("name")
+        if name:
+            response = mesh.set_recipient(name)
+            response_code = 200
+    return jsonify(response), response_code
 
 
 @app.route("/message", methods=["POST"])
 def send_message():
     """Send a message to the target recipient"""
-    if not target_recipient:
-        return jsonify({"error": "Recipient not set"}), 400
     data = request.json
-    msg = data.get("msg")
-    if not msg:
-        return jsonify({"error": "Missing 'msg'"}), 400
-    return jsonify(run_meshcli(["msg", target_recipient, msg]))
+    response = {"error": "Missing 'msg'"}
+    response_code: int = 400
+    if data is not None:
+        msg = data.get("msg")
+        if msg:
+            response = mesh.send_message(msg)
+            response_code = 200
+    return jsonify(response), response_code
 
 
 if __name__ == "__main__":
